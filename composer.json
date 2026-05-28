@@ -1,0 +1,61 @@
+{
+  "name": "yugo/laravel-maily",
+  "description": "Laravel mail transport integration for Maily.id API.",
+  "type": "library",
+  "license": "MIT",
+
+  "autoload": {
+    "psr-4": {
+      "Yugo\\Maily\\": "src/"
+    }
+  },
+
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+
+  "authors": [
+    {
+      "name": "Yugo",
+      "email": "dedy.yugo.purwanto@gmail.com"
+    }
+  ],
+
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Yugo\\Maily\\MailyServiceProvider"
+      ]
+    }
+  },
+
+  "require": {
+    "php": "^8.2",
+    "illuminate/mail": "^11.0|^12.0",
+    "illuminate/support": "^11.0|^12.0",
+    "symfony/mailer": "^7.0"
+  },
+
+  "require-dev": {
+    "orchestra/testbench": "^9.0|^10.0",
+    "pestphp/pest": "^3.0",
+    "pestphp/pest-plugin-laravel": "^3.0",
+    "laravel/pint": "^1.0"
+  },
+
+  "scripts": {
+    "test": "./vendor/bin/pest",
+    "format": "./vendor/bin/pint"
+  },
+
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
