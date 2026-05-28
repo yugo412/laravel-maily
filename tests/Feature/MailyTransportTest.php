@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Yugo\Maily\Events\MailySentEvent;
 use Yugo\Maily\Exceptions\MailyException;
 use Yugo\Maily\Exceptions\MailyTransportException;
 use Yugo\Maily\MailyTransport;
@@ -29,6 +31,8 @@ beforeEach(function (): void {
 });
 
 it('sends email successfully', function (): void {
+    Event::fake();
+
     Http::fake([
         '*' => Http::response([
             'id' => 'abc123',
@@ -48,6 +52,8 @@ it('sends email successfully', function (): void {
             && $request['to'] === 'user@example.com'
             && $request['subject'] === 'Test Email';
     });
+
+    Event::assertDispatched(MailySentEvent::class);
 });
 
 it('throws exception when api key is missing', function (): void {
@@ -131,9 +137,13 @@ it('throws exception when connection fails', function (): void {
 });
 
 it('formats from address correctly', function (): void {
+    Event::fake();
+
     Http::fake([
         '*' => Http::response([
+            'id' => 'mail123',
             'status' => 'queued',
+            'message' => 'lorem ipsum dolor sit amet',
         ]),
     ]);
 
@@ -150,4 +160,6 @@ it('formats from address correctly', function (): void {
     Http::assertSent(function ($request): bool {
         return $request['from'] === 'Your App <hello@example.com>';
     });
+
+    Event::assertDispatched(MailySentEvent::class);
 });
