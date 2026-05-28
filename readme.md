@@ -2,6 +2,25 @@
 
 SMTP-free Laravel mail transport for [Maily.id](https://maily.id).
 
+## Why this package?
+
+Maily currently provides an API-only email service without SMTP support.
+This package allows Laravel applications to use Maily through Laravel Mail without changing existing mail implementations.
+
+## Features
+
+* Native Laravel Mail integration
+* Queue compatible
+* Notification compatible
+* API-based delivery
+* SMTP-free setup
+* Retry support
+
+## Requirements
+
+* PHP 8.2+
+* Laravel 11 or newer
+
 ## Installation
 
 Install the package via Composer:
@@ -66,14 +85,66 @@ Mail::to($user)->send(new WelcomeMail());
 Mail::to($user)->queue(new WelcomeMail());
 ```
 
-## Features
+## Events
 
-* Native Laravel Mail integration
-* Queue compatible
-* Notification compatible
-* API-based delivery
-* SMTP-free setup
-* Retry support
+The package dispatches a `MailySentEvent` event after a successful email request.
+
+This can be useful for:
+
+* logging
+* analytics
+* quota monitoring
+* debugging
+* admin dashboards
+
+### Listening to the Event
+
+```php
+<?php
+
+namespace App\Listeners;
+
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
+use Yugo\Maily\Events\MailySentEvent;
+
+class GetMailyResponse
+{
+    /**
+     * Create the event listener.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Handle the event.
+     */
+    public function handle(MailySentEvent $event): void
+    {
+        Log::debug('Maily response', [
+            'id' => $event->id,
+            'status' => $event->status,
+            'message' => $event->message,
+            'data' => $event->data,
+        ]);
+    }
+}
+
+```
+
+### Available Properties
+
+```php
+$event->id;
+$event->status;
+$event->message;
+$event->data;
+```
+
+The `data` property contains the full raw response returned by the Maily API.
 
 ## Limitations
 
@@ -82,11 +153,6 @@ Currently, the following features are not supported due to limitations in the Ma
 * Attachments
 * Multiple recipients
 * CC and BCC recipients
-
-## Requirements
-
-* PHP 8.2+
-* Laravel 11 or newer
 
 ## Testing
 

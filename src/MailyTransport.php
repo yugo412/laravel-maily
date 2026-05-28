@@ -11,6 +11,7 @@ use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\MessageConverter;
+use Yugo\Maily\Events\MailySentEvent;
 use Yugo\Maily\Exceptions\MailyException;
 use Yugo\Maily\Exceptions\MailyTransportException;
 
@@ -53,7 +54,6 @@ class MailyTransport extends AbstractTransport
                     'html' => $email->getHtmlBody(),
                     'text' => $email->getTextBody(),
                 ]);
-
             if ($response->failed()) {
                 $message = $response->json('error') ?? $response->body();
 
@@ -70,6 +70,13 @@ class MailyTransport extends AbstractTransport
                     sprintf('Maily API request failed with status %s: %s', $response->status(), $message),
                 );
             }
+
+            event(new MailySentEvent(
+                id: $response->json('id'),
+                status: $response->json('status'),
+                message: $response->json('message'),
+                data: $response->json(),
+            ));
         } catch (ConnectionException $e) {
             throw new MailyTransportException('Could not connect to the Maily API.', previous: $e);
         }
