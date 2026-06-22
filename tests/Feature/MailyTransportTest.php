@@ -121,6 +121,26 @@ it('formats validation error details', function (): void {
     ))->toThrow(MailyTransportException::class, 'Validation failed: to: Invalid to address');
 });
 
+it('sends recipient as email address without display name', function (): void {
+    Http::fake([
+        '*' => Http::response([
+            'id' => 'email_123',
+            'status' => 'queued',
+            'message' => 'Email queued successfully',
+        ]),
+    ]);
+
+    Mail::raw('Hello', function ($message): void {
+        $message
+            ->to('john@example.com', 'John Doe')
+            ->subject('Test');
+    });
+
+    Http::assertSent(function ($request): bool {
+        return $request['to'] === 'john@example.com';
+    });
+});
+
 it('throws exception when connection fails', function (): void {
     Http::fake(function (): void {
         throw new ConnectionException('Connection failed');

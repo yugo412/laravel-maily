@@ -49,7 +49,7 @@ class MailyTransport extends AbstractTransport
                 ->asJson()
                 ->post('/api/v1/emails/send', [
                     'from' => $this->formatAddress($email->getFrom()[0] ?? null),
-                    'to' => $this->formatAddress($email->getTo()[0] ?? null),
+                    'to' => $email->getTo()[0]?->getAddress() ?? null,
                     'subject' => $email->getSubject(),
                     'html' => $email->getHtmlBody(),
                     'text' => $email->getTextBody(),
